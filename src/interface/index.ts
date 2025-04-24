@@ -9,4 +9,7 @@ export interface EmailOptions {
     headers?: Record<string, string>;
     replyTo?: string;
     priority?: 'high' | 'normal' | 'low';
+    templateName?: string,
+    name: string,
+    link: string,
 }

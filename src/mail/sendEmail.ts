@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import renderTemplate from '../utils/renderTemplate';
 import transporter from '../config/transporter';
+import { EmailOptions } from '../interface';
 
 export default async function sendEmail(req: Request) {
     const {
@@ -15,7 +16,7 @@ export default async function sendEmail(req: Request) {
         name,
         link,
         headers = {},
-    } = req.body;
+    } : EmailOptions = req.body;
 
     const variables = {
         name,
