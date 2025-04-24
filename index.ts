@@ -1,47 +1,70 @@
-import express from 'express'
-import dotenv from "dotenv";
-import nodemailer from "nodemailer";
-
-const app = express()
-const port = 3000
+// index.ts
+import express from 'express';
+import dotenv from 'dotenv';
+import multer from 'multer';
+import path from 'path';
+import sendEmail from './src/mail/sendEmail';
 
 dotenv.config();
-app.use(express.json());
 
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Multer config
+const storage = multer.diskStorage({
+    destination: 'uploads/',
+    filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
 });
+const upload = multer({ storage });
 
-app.get('/', (request, response) => {
-    response.send('Hello World!')
-})
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-app.post("/send-email", async (req, res) => {
-
-    const { to, subject, message } = req.body;
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to,
-        subject,
-        text: message,
-    };
-
-    try {
-        const info = await transporter.sendMail(mailOptions);
-        res.status(200).json({
-            success: true,
-            info
-        });
+app.post(
+    '/send-email',
+    upload.fields([
+        { name: 'attachments', maxCount: 10 },
+        { name: 'inlineImages', maxCount: 10 },
+    ]),
+    async (req, res) => {
+        try {
+            await sendEmail(req);
+            res.status(200).json({ message: 'Email sent successfully' });
+        } catch (err) {
+            res.status(500).json({ error: (err as Error).message });
+        }
     }
-    catch (error: any) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
+);
 
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
-})
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+/**
+ * @SIMPLE_DEFAULT_SEND_EMAIL
+ */
+// const transporter = nodemailer.createTransport({
+//     service: "gmail",
+//     auth: {
+//         user: process.env.EMAIL_USER,
+//         pass: process.env.EMAIL_PASS,
+//     },
+// });
+
+// app.post("/send-email", async (req, res) => {
+//     const { to, subject, message } = req.body;
+//     const mailOptions = {
+//         from: process.env.EMAIL_USER,
+//         to,
+//         subject,
+//         text: message,
+//     };
+
+//     try {
+//         const info = await transporter.sendMail(mailOptions);
+//         res.status(200).json({
+//             success: true,
+//             info
+//         });
+//     }
+//     catch (error: any) {
+//         res.status(500).json({ success: false, error: error.message });
+//     }
+// });
