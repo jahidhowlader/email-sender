@@ -1,3 +1,9 @@
+interface InlineImage {
+    filename: string;
+    path: string;
+    cid: string; // unique ID for embedding in HTML content
+}
+
 export interface EmailOptions {
     to: string;
     subject: string;
@@ -9,7 +15,8 @@ export interface EmailOptions {
     headers?: Record<string, string>;
     replyTo?: string;
     priority?: 'high' | 'normal' | 'low';
-    templateName?: string,
-    name: string,
-    link: string,
+    templateName?: string;
+    name: string;
+    link: string;
+    inlineImages?: InlineImage[]
 }

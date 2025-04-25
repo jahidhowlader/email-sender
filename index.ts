@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction, Request, Response, response } from 'express';
 import dotenv from 'dotenv';
 import multer from 'multer';
 import path from 'path';
@@ -14,6 +14,7 @@ const storage = multer.diskStorage({
     destination: 'uploads/',
     filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
 });
+
 const upload = multer({ storage });
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
@@ -27,12 +28,30 @@ app.post(
     async (req, res) => {
         try {
             await sendEmail(req);
-            res.status(200).json({ message: 'Email sent successfully' });
-        } catch (err) {
-            res.status(500).json({ error: (err as Error).message });
+            res.status(200)
+                .json({
+                    message: 'Email sent successfully'
+                });
+        }
+        catch (err) {
+            res.status(500)
+                .json({
+                    message: 'Nodemailer Email',
+                    error: (err as Error).message
+                });
         }
     }
 );
+
+// GLOBAL ERROR
+app.use((error: Error, request: Request, response: Response, next: NextFunction) => {
+
+    response.status(500)
+        .json({
+            message: 'Internal Server Error',
+            error: (error as Error).message
+        });
+})
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

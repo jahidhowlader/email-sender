@@ -1,7 +1,9 @@
 import { Request } from 'express';
 import renderTemplate from '../utils/renderTemplate';
+import path from 'path';
 import transporter from '../config/transporter';
 import { EmailOptions } from '../interface';
+import deleteFilesInUploads from '../utils/removeUploadPhoto';
 
 export default async function sendEmail(req: Request) {
     const {
@@ -16,7 +18,7 @@ export default async function sendEmail(req: Request) {
         name,
         link,
         headers = {},
-    } : EmailOptions = req.body;
+    }: EmailOptions = req.body;
 
     const variables = {
         name,
@@ -32,7 +34,10 @@ export default async function sendEmail(req: Request) {
     if (req.files && 'attachments' in req.files) {
         const files = req.files['attachments'];
         for (const file of files) {
-            attachments.push({ filename: file.originalname, path: file.path });
+            attachments.push({
+                filename: file.originalname,
+                path: file.path
+            });
         }
     }
 
@@ -62,4 +67,5 @@ export default async function sendEmail(req: Request) {
     };
 
     await transporter.sendMail(mailOptions);
+    await deleteFilesInUploads(`${process.cwd()}${path.sep}uploads`)
 }
