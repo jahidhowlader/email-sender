@@ -5,7 +5,7 @@ import transporter from '../config/transporter';
 import { EmailOptions } from '../interface';
 import deleteFilesInUploads from '../utils/removeUploadPhoto';
 
-export default async function sendEmail(req: Request) {
+export default async function sendEmail(request: Request) {
     const {
         to,
         cc,
@@ -18,7 +18,7 @@ export default async function sendEmail(req: Request) {
         name,
         link,
         headers = {},
-    }: EmailOptions = req.body;
+    }: EmailOptions = request.body;
 
     const variables = {
         name,
@@ -31,8 +31,8 @@ export default async function sendEmail(req: Request) {
     // Attachments and inline images
     const attachments: any[] = [];
 
-    if (req.files && 'attachments' in req.files) {
-        const files = req.files['attachments'];
+    if (request.files && 'attachments' in request.files) {
+        const files = request.files['attachments'];
         for (const file of files) {
             attachments.push({
                 filename: file.originalname,
@@ -41,8 +41,8 @@ export default async function sendEmail(req: Request) {
         }
     }
 
-    if (req.files && 'inlineImages' in req.files) {
-        const files = req.files['inlineImages'];
+    if (request.files && 'inlineImages' in request.files) {
+        const files = request.files['inlineImages'];
         for (const file of files) {
             attachments.push({
                 filename: file.originalname,
