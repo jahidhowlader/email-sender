@@ -14,16 +14,16 @@ app.post(
         { name: 'attachments', maxCount: 10 },
         { name: 'inlineImages', maxCount: 10 },
     ]),
-    async (req, res) => {
+    async (request, response) => {
         try {
-            await sendEmail(req);
-            res.status(200)
+            await sendEmail(request);
+            response.status(200)
                 .json({
                     message: 'Email sent successfully'
                 });
         }
         catch (err) {
-            res.status(500)
+            response.status(500)
                 .json({
                     message: 'Nodemailer Email',
                     error: (err as Error).message
