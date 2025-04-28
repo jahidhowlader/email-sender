@@ -1,23 +1,12 @@
 import express, { NextFunction, Request, Response, response } from 'express';
 import dotenv from 'dotenv';
-import multer from 'multer';
-import path from 'path';
 import sendEmail from './src/mail/sendEmail';
+import { upload } from './src/config/multerConfig';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-// Multer config
-const storage = multer.diskStorage({
-    destination: 'uploads/',
-    filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
-});
-
-const upload = multer({ storage });
-
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.post(
     '/send-email',
